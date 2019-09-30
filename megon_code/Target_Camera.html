@@ -1,0 +1,1065 @@
+<!doctype html>
+<html>
+<head>
+<meta id="meta" http-equiv="Refresh" content="300" charset="UTF-8">
+<link rel="icon" href="../favicon.png" type="image/png" />
+<link rel="stylesheet" href="mhttpd.css" type="text/css" />
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="midas.css" type="text/css">
+<title>Target Camera Interface</title>
+<script src="controls.js"></script>
+<script src="midas.js"></script>
+<script src="mhttpd.js"></script>
+<script src="mhistory.js"></script>
+<script src="obsolete.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="https://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+<script type="text/javascript">
+
+/* define vars here*/
+var reloadtime;
+var loadtime;
+
+/*functions*/
+
+$(document).ready(function() {
+  jQuery.ajax({
+     type: "GET",
+     url: "cameradata.txt",
+     dataType: "text",
+     success: function(obj) {fitData(obj);}
+  });
+});
+
+$(document).ready(function() {
+  jQuery.ajax({
+     type: "GET",
+     url: "camerasettings.txt",
+     dataType: "text",
+     success: function(data) {cameraData(data);}
+  });
+});
+$(document).ready(function() {
+  jQuery.ajax({
+     type: "GET",
+     url: "imagename.txt",
+     dataType: "text",
+     success: function(data) {imageName(data);}
+  });
+});
+/*
+$(document).ready(function() {
+  jQuery.ajax({
+     type: "GET",
+     url: "lighttime.txt",
+     dataType: "text",
+     success: function(data) {lightT(data);}
+  });
+});
+*/
+$(document).ready(function() {
+  jQuery.ajax({
+     type: "GET",
+     url: "readout.txt",
+     dataType: "text",
+     success: function(data) {errOut(data);}
+  });
+});
+
+
+function init()
+{
+  var isrun = ODBGet('/Equipment/Target_Camera/Variables/Camera Status');
+  if (isrun == 0)
+     rs.value = "Start The Camera";
+  else
+     rs.value = "Stop The Camera";
+  
+  setTimeout("reload_fit()",500); 
+}
+
+function runstop_reset()
+{
+  var isrun = ODBGet('/Equipment/Target_Camera/Variables/Camera Status');
+  
+  var rs = document.getElementById('rs');
+
+  if (isrun == 0)
+     rs.value = "Start The Camera";
+  else
+     rs.value = "Stop The Camera";
+  reloadtime=setTimeout("reload_fit()",1000)
+}
+
+function reload_fit(){
+  jQuery.ajax({
+     type: "GET",
+     url: "cameradata.txt",
+     dataType: "text",
+     success: function(data) {fitData(data);}
+  });
+  jQuery.ajax({
+     type: "GET",
+     url: "camerasettings.txt",
+     dataType: "text",
+     success: function(data) {cameraData(data);}
+  });
+  jQuery.ajax({
+     type: "GET",
+     url: "imagename.txt",
+     dataType: "text",
+     success: function(data) {imageName(data);}
+  });
+  /*
+  jQuery.ajax({
+     type: "GET",
+     url: "lighttime.txt",
+     dataType: "text",
+     success: function(data) {lightT(data);}
+  });
+  */
+  jQuery.ajax({
+     type: "GET",
+     url: "readout.txt",
+     dataType: "text",
+     success: function(data) {errOutN(data);}
+  });
+  
+  setTimeout("reload_fit()",500);
+}
+
+function reload_fit_single(){
+  jQuery.ajax({
+     type: "GET",
+     url: "cameradata.txt",
+     dataType: "text",
+     success: function(data) {fitData(data);}
+  });
+  jQuery.ajax({
+     type: "GET",
+     url: "camerasettings.txt",
+     dataType: "text",
+     success: function(data) {cameraData(data);}
+  });
+  jQuery.ajax({
+     type: "GET",
+     url: "imagename.txt",
+     dataType: "text",
+     success: function(data) {imageName(data);}
+  });
+  /*
+  jQuery.ajax({
+     type: "GET",
+     url: "lighttime.txt",
+     dataType: "text",
+     success: function(data) {lightT(data);}
+  });
+  */
+  jQuery.ajax({
+     type: "GET",
+     url: "readout.txt",
+     dataType: "text",
+     success: function(data) {errOutNsingle(data);}
+  });
+
+  setTimeout("reload_fit_single()",500);
+}
+
+function fitData(allText) {
+    var record_num = 8;  // or however many elements there are in each row
+    var allTextLines = allText.split(/\r\n|\n/);
+    var entries = allTextLines[0].split(',');
+    var values = entries.splice(0,record_num);
+    var td = document.getElementById('param0');
+    td.innerHTML = values[0];
+    td = document.getElementById('param1');
+    td.innerHTML = values[1];
+    td = document.getElementById('param2');
+    td.innerHTML = values[2];
+    td = document.getElementById('param3');
+    td.innerHTML = values[3];
+    td = document.getElementById('param4');
+    td.innerHTML = values[4];
+    td = document.getElementById('param5');
+    td.innerHTML = values[5];
+    td = document.getElementById('param6');
+    td.innerHTML = values[6];
+    td = document.getElementById('param7');
+    td.innerHTML = values[7];
+}
+
+
+function fitDataN(allText) {
+    var record_num = 8;  // or however many elements there are in each row
+    var allTextLines = allText.split(/\r\n|\n/);
+    var entries = allTextLines[0].split(',');
+    var values = entries.splice(0,record_num);
+    var told = parseFloat(document.getElementById('param0').innerHTML);
+    var tnew = parseFloat(values[0]);
+    if (Math.abs(told-tnew)>.01){
+       window.location.reload();
+    }
+    told = parseFloat(document.getElementById('param1').innerHTML);
+    tnew = parseFloat(values[1]);
+    if (Math.abs(told-tnew)>.01){
+       window.location.reload();
+    }
+    told = parseFloat(document.getElementById('param2').innerHTML);
+    tnew = parseFloat(values[2]);
+    if (Math.abs(told-tnew)>.01){
+       window.location.reload();
+    }
+    told = parseFloat(document.getElementById('param3').innerHTML);
+    tnew = parseFloat(values[3]);
+    if (Math.abs(told-tnew)>.01){
+       window.location.reload();
+    }
+    told = parseFloat(document.getElementById('param4').innerHTML);
+    tnew = parseFloat(values[4]);
+    if (Math.abs(told-tnew)>.01){
+       window.location.reload();
+    }
+    told = parseFloat(document.getElementById('param5').innerHTML);
+    tnew = parseFloat(values[5]);
+    if (Math.abs(told-tnew)>.01){
+       window.location.reload();
+    }
+    told = parseFloat(document.getElementById('param6').innerHTML);
+    tnew = parseFloat(values[6]);
+    if (Math.abs(told-tnew)>.01){
+       window.location.reload();
+    }
+    told = parseFloat(document.getElementById('param7').innerHTML);
+    tnew = parseFloat(values[7]);
+    if (Math.abs(told-tnew)>.01){
+       window.location.reload();
+    }
+
+    var td = document.getElementById('param0');
+    td.innerHTML = values[0];
+    td = document.getElementById('param1');
+    td.innerHTML = values[1];
+    td = document.getElementById('param2');
+    td.innerHTML = values[2];
+    td = document.getElementById('param3');
+    td.innerHTML = values[3];
+    td = document.getElementById('param4');
+    td.innerHTML = values[4];
+    td = document.getElementById('param5');
+    td.innerHTML = values[5];
+    td = document.getElementById('param6');
+    td.innerHTML = values[6];
+    td = document.getElementById('param7');
+    td.innerHTML = values[7];
+}
+
+function fitDataNsingle(allText) {
+    var record_num = 8;  // or however many elements there are in each row
+    var allTextLines = allText.split(/\r\n|\n/);
+    var entries = allTextLines[0].split(',');
+    var values = entries.splice(0,record_num);
+    var told = parseFloat(document.getElementById('param0').innerHTML);
+    var tnew = parseFloat(values[0]);
+    if (Math.abs(told-tnew)>.01){
+       ODBSet('/Equipment/Target_Camera/Variables/Camera Status',0);
+       ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+       setTimeout("window.location.reload()",2000);
+    }
+    told = parseFloat(document.getElementById('param1').innerHTML);
+    tnew = parseFloat(values[1]);
+    if (Math.abs(told-tnew)>.01){
+       ODBSet('/Equipment/Target_Camera/Variables/Camera Status',0);
+       ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+       setTimeout("window.location.reload()",2000);
+    }
+    told = parseFloat(document.getElementById('param2').innerHTML);
+    tnew = parseFloat(values[2]);
+    if (Math.abs(told-tnew)>.01){
+       ODBSet('/Equipment/Target_Camera/Variables/Camera Status',0);
+       ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+       setTimeout("window.location.reload()",2000);
+    }
+    told = parseFloat(document.getElementById('param3').innerHTML);
+    tnew = parseFloat(values[3]);
+    if (Math.abs(told-tnew)>.01){
+       ODBSet('/Equipment/Target_Camera/Variables/Camera Status',0);
+       ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+       setTimeout("window.location.reload()",2000);
+    }
+    told = parseFloat(document.getElementById('param4').innerHTML);
+    tnew = parseFloat(values[4]);
+    if (Math.abs(told-tnew)>.01){
+       ODBSet('/Equipment/Target_Camera/Variables/Camera Status',0);
+       ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+       setTimeout("window.location.reload()",2000);
+    }
+    told = parseFloat(document.getElementById('param5').innerHTML);
+    tnew = parseFloat(values[5]);
+    if (Math.abs(told-tnew)>.01){
+       ODBSet('/Equipment/Target_Camera/Variables/Camera Status',0);
+       ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+       setTimeout("window.location.reload()",2000);
+    }
+    told = parseFloat(document.getElementById('param6').innerHTML);
+    tnew = parseFloat(values[6]);
+    if (Math.abs(told-tnew)>.01){
+       ODBSet('/Equipment/Target_Camera/Variables/Camera Status',0);
+       ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+       setTimeout("window.location.reload()",2000);
+    }
+    told = parseFloat(document.getElementById('param7').innerHTML);
+    tnew = parseFloat(values[7]);
+    if (Math.abs(told-tnew)>.01){
+       ODBSet('/Equipment/Target_Camera/Variables/Camera Status',0);
+       ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+       setTimeout("window.location.reload()",2000);
+    }
+
+    var td = document.getElementById('param0');
+    td.innerHTML = values[0];
+    td = document.getElementById('param1');
+    td.innerHTML = values[1];
+    td = document.getElementById('param2');
+    td.innerHTML = values[2];
+    td = document.getElementById('param3');
+    td.innerHTML = values[3];
+    td = document.getElementById('param4');
+    td.innerHTML = values[4];
+    td = document.getElementById('param5');
+    td.innerHTML = values[5];
+    td = document.getElementById('param6');
+    td.innerHTML = values[6];
+    td = document.getElementById('param7');
+    td.innerHTML = values[7];
+}
+
+
+function cameraData(allText){
+  var record_num = 6;
+  var allTextLines = allText.split(/\r\n|\n/);
+  var entries = allTextLines[0].split(',');
+  var values = entries.splice(0,record_num);
+  td = document.getElementById('cpa');
+  td.innerHTML=values[0];
+  td = document.getElementById('cpb');
+  td.innerHTML=values[1];
+  td = document.getElementById('cpc');
+  td.innerHTML=values[2];
+  td = document.getElementById('cpd');
+  td.innerHTML=values[3];
+  td = document.getElementById('cpe');
+  td.innerHTML=values[4];
+
+  var rs =document.getElementById('rs');
+  if (parseInt(values[5])==1)
+     rs.value="Stop The Camera";
+  else 
+     rs.value="Start The Camera";
+}
+
+function imageName(allText){
+  var record_num = 1;
+  var allTextLines = allText.split(/\r\n|\n/);
+  var entries = allTextLines[0].split(',');
+  var values = entries.splice(0,record_num);
+  td = document.getElementById('dbstrc');
+  td.innerHTML="Image Name: "+values[0];
+}
+
+function errOut(allText){
+  var record_num = 4;
+  var allTextLines = allText.split(/\r\n|\n/);
+  var secinyr= 60*60*24*365.24;  
+  for (var i=0;i<20;i++){
+     if (i<=(allTextLines.length-1)){
+        var entries = allTextLines[i].split(':');
+	var unts = parseInt(entries[1]);
+	var untconv = new Date(0);
+	untconv.setUTCSeconds(unts);
+	var shortdate = untconv.toString().split(' ');
+	var shortdatestr = shortdate.toString();
+	td = document.getElementById('dbstr'+i);
+	td.innerHTML=entries[0];
+	td = document.getElementById('dbstt'+i);
+	if (unts>10)
+	   td.innerHTML=shortdate[4]+" "+shortdate[5]+"::";
+     }
+     else{
+        td = document.getElementById('dbstr'+i);
+	td.innerHTML="";
+	td = document.getElementById('dbstt'+i);
+	td.innerHTML="";
+     }
+  }
+
+  var clast = ODBGet('/Equipment/Target_Camera/Variables/oncount[*]');
+  td = document.getElementById('lastcount');
+  td.innerHTML = clast[1];
+  td = document.getElementById('lastcounttime');
+  td.innerHTML = clast[2];
+
+  /*
+  var entries = allTextLines[0].split(',');
+  var values = entries.splice(0,record_num);
+  td = document.getElementById('dbstra');
+  td.innerHTML=values[0];
+  td = document.getElementById('dbstrb');
+  td.innerHTML=values[1];
+  td = document.getElementById('dbstrd');
+  td.innerHTML=values[2];
+  td = document.getElementById('dbstre');
+  td.innerHTML=values[3];*/
+}
+
+function errOutN(allText){
+  var nowd = new Date();
+  var unixt = nowd.getTime() / 1000;
+  var utsec = parseInt(unixt);
+  var lasttc = parseInt(document.getElementById('lastcounttime').innerHTML);
+  var lastco = parseInt(document.getElementById('lastcount').innerHTML);
+  var drun = document.getElementById('progrundiv');
+  var drunt = document.getElementById('progruntext');
+  if ((utsec-lasttc)>300){
+     var countchk = ODBGet('/Equipment/Target_Camera/Variables/oncount[0]');
+     if (countchk != lastco){
+        ODBSet('/Equipment/Target_Camera/Variables/oncount[1]',countchk);
+	ODBSet('/Equipment/Target_Camera/Variables/oncount[2]',utsec);
+	td = document.getElementById('lastcount');
+	td.innerHTML = countchk;
+	td = document.getElementById('lastcounttime');
+	td.innerHTML = utsec;
+	drun.style.backgroundColor = "#0c0";
+	drunt.innerHTML= "Camera Program Is Running";
+     }
+     else {
+        /*alert("Program Is Not Running");*/
+	drun.style.backgroundColor = "red";
+	drunt.innerHTML = "Camera Program Is Not Running";
+	td = document.getElementById('lastcounttime');
+	var mintochk = utsec-240;
+	td.innerHTML = mintochk;	
+     }
+  }
+
+  var record_num = 4;
+  var allTextLines = allText.split(/\r\n|\n/);
+  var secinyr= 60*60*24*365.24;
+  var ns = document.getElementById('needup');
+  var nsi = parseInt(ns.innerHTML);
+  var linenum = parseInt(allTextLines.length);
+  if (linenum<4){
+     ns.innerHTML=1;
+  }
+  var imn = parseInt(document.getElementById('cpb').innerHTML);
+  var refn = 6+(2*(imn-1));
+  if (linenum>refn){
+     if (nsi==1){
+        ns.innerHTML=0;
+	window.location.reload();
+     }
+  }
+     
+  for (var i=0;i<20;i++){
+     if (i<=(allTextLines.length-1)){
+        var entries = allTextLines[i].split(':');
+        var unts = parseInt(entries[1]);
+        var untconv = new Date(0);
+        untconv.setUTCSeconds(unts);
+        var shortdate = untconv.toString().split(' ');
+        var shortdatestr = shortdate.toString();
+        td = document.getElementById('dbstr'+i);
+        td.innerHTML=entries[0];
+	var words = entries[0].split(' ');
+        td = document.getElementById('dbstt'+i);
+        if (unts>10)
+           td.innerHTML=shortdate[4]+" "+shortdate[5]+"::";
+     }
+     else{
+        td = document.getElementById('dbstr'+i);
+        td.innerHTML="";
+        td = document.getElementById('dbstt'+i);
+        td.innerHTML="";
+     }
+  }
+}
+
+function errOutNsingle(allText){
+  var record_num = 4;
+  var allTextLines = allText.split(/\r\n|\n/);
+  var secinyr= 60*60*24*365.24;
+  var ns = document.getElementById('needup');
+  var nsi = parseInt(ns.innerHTML);
+  var linenum = parseInt(allTextLines.length);
+  if (linenum<4){
+     if (nsi==2){
+        ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+	ns.innerHTML=0;
+     }
+     else{
+        ns.innerHTML=1;
+     }
+  }
+  var imn = parseInt(document.getElementById('cpb').innerHTML);
+  var refn = 6+(2*(imn-1));
+  if (linenum>refn){
+     if (nsi==1){
+        ns.innerHTML=0;
+	ODBSet('/Equipment/Target_Camera/Variables/Camera Status',0);
+        window.location.reload();
+     }
+  }
+
+
+  for (var i=0;i<20;i++){
+     if (i<=(allTextLines.length-1)){
+        var entries = allTextLines[i].split(':');
+        var unts = parseInt(entries[1]);
+        var untconv = new Date(0);
+        untconv.setUTCSeconds(unts);
+        var shortdate = untconv.toString().split(' ');
+        var shortdatestr = shortdate.toString();
+        td = document.getElementById('dbstr'+i);
+        td.innerHTML=entries[0];
+        var words = entries[0].split(' ');
+        td = document.getElementById('dbstt'+i);
+        if (unts>10)
+           td.innerHTML=shortdate[4]+" "+shortdate[5]+"::";
+     }
+     else{
+        td = document.getElementById('dbstr'+i);
+        td.innerHTML="";
+        td = document.getElementById('dbstt'+i);
+        td.innerHTML="";
+     }
+  }
+}
+
+
+
+
+function lightT(allText){
+  var record_num = 2;
+  var allTextLines = allText.split(/\r\n|\n/);
+  var entries = allTextLines[0].split(',');
+  var values = entries.splice(0,record_num);
+  
+  var ttims= parseInt(values[0]);
+  if (ttims >0){
+     var ptimeconv = new Date(0);
+     ptimeconv.setUTCSeconds(ttims);
+     td = document.getElementById('stime');
+     td.innerHTML=ptimeconv.toString();
+     td = document.getElementById('wtime');
+     td.innerHTML=values[1];
+     td= document.getElementById('sttext');
+     td.innerHTML="LED Will Start At:";
+     td= document.getElementById('wttext');
+     td.innerHTML="LED Will Wait";
+  }
+  else {
+     td = document.getElementById('stime');
+     td.innerHTML="";
+     td = document.getElementById('wtime');
+     td.innerHTML="";
+     td = document.getElementById('sttext');
+     td.innerHTML="";
+     td= document.getElementById('wttext');
+     td.innerHTML="";
+  }
+}
+
+function reload_fit_old()
+{
+  var pa = ODBGet('/Equipment/Target_Camera/Variables/delta_x(um)');
+  var pb = ODBGet('/Equipment/Target_Camera/Variables/delta_y(um)');
+  var pc = ODBGet('/Equipment/Target_Camera/Variables/delta_z(um)');
+  var pd = ODBGet('/Equipment/Target_Camera/Variables/delta_theta(mrad)');
+  var pe = ODBGet('/Equipment/Target_Camera/Variables/delta_phi(mrad)');
+  var pf = ODBGet('/Equipment/Target_Camera/Variables/delta_psi(mrad)');
+  var pg = ODBGet('/Equipment/Target_Camera/Variables/bowing_parameter(um)');
+  var ph = ODBGet('/Equipment/Target_Camera/Variables/chi');
+  var pstime = ODBGet('/Equipment/Target_Camera/Variables/start_time');
+  var pwtime = ODBGet('/Equipment/Target_Camera/Variables/wait_time');  
+  pa = parseFloat(pa).toFixed(2);
+  pb = parseFloat(pb).toFixed(2);
+  pc = parseFloat(pc).toFixed(2);
+  pd = parseFloat(pd).toFixed(2);
+  pe = parseFloat(pe).toFixed(2);
+  pf = parseFloat(pf).toFixed(2);
+  pg = parseFloat(pg).toFixed(2);
+  ph = parseFloat(ph).toFixed(2);
+
+  var pstimeconvert = new Date(0);
+  pstimeconvert.setUTCSeconds(pstime);
+
+  var ca =  ODBGet('/Equipment/Target_Camera/Variables/exposure_time');
+  var cb = ODBGet('/Equipment/Target_Camera/Variables/num_photos');
+  var cc = ODBGet('/Equipment/Target_Camera/Variables/cycle_time');
+  var cd = ODBGet('/Equipment/Target_Camera/Variables/led_intensity');
+  var ce = ODBGet('/Equipment/Target_Camera/Variables/threshold');
+  var cf = ODBGet('/Equipment/Target_Camera/Variables/light');
+
+  var era = ODBGet('/Equipment/Target_Camera/Settings/led_error[*]');
+  var erb = ODBGet('/Equipment/Target_Camera/Settings/image_error[*]');
+  var erc = ODBGet('/Equipment/Target_Camera/Settings/image_name[*]');
+  var erd = ODBGet('/Equipment/Target_Camera/Settings/analysis_error[*]');
+  var ere = ODBGet('/Equipment/Target_Camera/Settings/odb_error[*]');
+
+  era = era.slice(0,-1);
+  erb = erb.slice(0,-1);
+  erc = erc.slice(0,-1);
+  erd = erd.slice(0,-1);
+  ere = ere.slice(0,-1);
+  
+  era=era.slice(1);
+  
+
+  td = document.getElementById('param0');
+  td.innerHTML = pa;
+  td = document.getElementById('param1');
+  td.innerHTML = pb;
+  td = document.getElementById('param2');
+  td.innerHTML = pc;
+  td = document.getElementById('param3');
+  td.innerHTML = pd;
+  td = document.getElementById('param4');
+  td.innerHTML = pe;
+  td = document.getElementById('param5');
+  td.innerHTML = pf;
+  td = document.getElementById('param6');
+  td.innerHTML = pg;
+  td = document.getElementById('param7');
+  td.innerHTML = ph;
+
+  td = document.getElementById('stime');
+  td.innerHTML = pstimeconvert;
+  td = document.getElementById('wtime');
+  td.innerHTML = pwtime;
+
+  td = document.getElementById('cpa');
+  td.innerHTML = ca;
+  td = document.getElementById('cpb');
+  td.innerHTML = cb;
+  td = document.getElementById('cpc');
+  td.innerHTML = cc;
+  td = document.getElementById('cpd');
+  td.innerHTML = cd;
+  td = document.getElementById('cpe');
+  td.innerHTML = ce;
+  td = document.getElementById('cpf');
+  td.innerHTML = cf;  
+
+  td = document.getElementById('dbstra');
+  if (era.toString().length>1){
+     td.innerHTML ="LED Error: "+era;
+  }
+  td = document.getElementById('dbstrb');
+  if (erb.toString().length>1){
+     td.innerHTML ="Image Error: "+erb;
+  }
+  td = document.getElementById('dbstrc');
+  td.innerHTML = erc;
+  td = document.getElementById('dbstrd');
+  if (erd.toString().length>1){
+     td.innerHTML ="Analysis Error: "+erd;
+  }
+  td = document.getElementById('dbstre');
+  if (ere.toString().length>1){
+     td.innerHTML ="ODB Error: "+ere;
+  }
+
+  /*reloadtime = setTimeout("reload_fit()",10000);*/
+}
+
+
+function runstop()
+{
+  
+  var sa = document.getElementById('c1').value;
+  ODBSet('/Equipment/Target_Camera/Variables/exposure_time', sa);
+  var sb = document.getElementById('c2').value;
+  ODBSet('/Equipment/Target_Camera/Variables/num_photos', sb);
+  var sc = document.getElementById('c3').value;
+  ODBSet('/Equipment/Target_Camera/Variables/cycle_time', sc);
+  var sd = document.getElementById('c4').value;
+  ODBSet('/Equipment/Target_Camera/Variables/led_intensity', sd);
+  var sf = document.getElementById('c6').value;
+  ODBSet('/Equipment/Target_Camera/Variables/light', sf);
+  
+  var isrun = ODBGet('/Equipment/Target_Camera/Variables/Camera Status');  
+  if (isrun==1){
+    alert("Stop Command Has Been Sent");
+  }
+  else {
+    alert("Start Command Has Been Sent");
+  }
+  var rs = document.getElementById('rs');
+  
+  ODBSet('/Equipment/Target_Camera/Variables/start_stop[0]', 1);
+  /* this is opposite to normal if cond because we already flipped in odb*/
+  ODBSet('/Equipment/Target_Camera/Variables/Camera Status',isrun==0?1:0);
+  setTimeout("runstop_reset()",2000);
+}
+
+function single_isrun()
+{
+  var isrun = ODBGet('/Equipment/Target_Camera/Variables/Camera Status');
+  if (isrun == 1){
+     ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+     ODBSet('/Equipment/Target_Camera/Variables/Camera Status',0);
+     setTimeout("runstop_single()",2500);
+  }
+  else{
+     setTimeout("runstop_single()",1000);
+  }
+}
+
+
+
+function runstop_single()
+{
+  ODBSet('/Equipment/Target_Camera/Variables/start_stop',0);
+  var sa = document.getElementById('c1').value;
+  ODBSet('/Equipment/Target_Camera/Variables/exposure_time', sa);
+  var sb = document.getElementById('c2').value;
+  ODBSet('/Equipment/Target_Camera/Variables/num_photos', sb);
+  var sc = document.getElementById('c3').value;
+  ODBSet('/Equipment/Target_Camera/Variables/cycle_time', sc);
+  var sd = document.getElementById('c4').value;
+  ODBSet('/Equipment/Target_Camera/Variables/led_intensity', sd);
+  var sf = document.getElementById('c6').value;
+  ODBSet('/Equipment/Target_Camera/Variables/light', sf);
+  var rs = document.getElementById('rs');
+  rs.value = "Start The Camera";
+  ODBSet('/Equipment/Target_Camera/Variables/start_stop',1)
+  setTimeout("flip_startstop()",10000);
+}
+
+function flip_startstop()
+{
+  ODBSet('/Equipment/Target_Camera/Variables/start_stop',1);
+  ODBSet('/Equipment/Target_Camera/Variables/Camera_Status',1);
+  var rs = document.getElementById('rs');
+  rs.value = "Stop The Camera";
+  var ns = document.getElementById('needup');
+  ns.innerHTML=2;
+  setTimeout("reload_fit_single()",3000);
+}
+
+function reset_onoff()
+{
+  ODBSet('/Equipment/Target_Camera/Variables/start_stop',0);
+  setTimeout("runstop_reset()",1000);
+}
+
+function load_ims()
+{
+  var imnew = document.getElementById('LastImage');
+  var ap1 = document.getElementById('arrow1');
+  var ap2 = document.getElementById('arrow2');
+  var ap3 = document.getElementById('hist1');
+  var ap4 = document.getElementById('hist2');
+  /*imnew.src = "";
+  
+  $('#LastImage').attr({
+     src: "LatestTargetImage.bmp";
+  });
+  ap1.src = "";
+  $('#arrow1').attr({
+     src: "arrow_plot1.png";
+  });
+  ap2.src = "";
+  $('#LastImage').attr({
+     src: "arrow_plot2.png";
+  });
+  ap3.src = "";
+  $(#LastImage).attr({
+     src: "histx.png";
+  });
+  ap4.src = "";
+  $('#LastImage').attr({
+     src: "histy.png";
+  });*/
+
+  var rand = Math.floor((Math.random()*1000)+1);
+  var randstr = rand.toString();
+  
+  ap1.src = "arrow_plot1.png?dummy="+randstr;
+  ap2.src = "arrow_plot2.png?dummy="+randstr;
+  ap3.src = "histx.png?dummy="+randstr;
+  ap4.src = "histy.png?dummy="+randstr;
+  setTimeout("reload_fit()",500);
+}
+
+function load_ims_true()
+{
+  var imnew = document.getElementById('LastImage');
+  var ap1 = document.getElementById('arrow1');
+  var ap2 = document.getElementById('arrow2');
+  var ap3 = document.getElementById('hist1');
+  var ap4 = document.getElementById('hist2');
+  
+  ap1.src = "";
+  ap2.src = "";
+  ap3.src = "";
+  ap4.src = "";
+  imnew.src = "LatestTargetImage.bmp";
+  ap1.src = "arrow_plot1.png";
+  ap2.src = "arrow_plot2.png";
+  ap3.src = "histx.png";
+  ap4.src = "histy.png";
+  setTimeout("reload_fit()",100);
+}
+function loadImage(path, width, height, target) {
+    $('<img src="'+ path +'">').load(function() {
+      $(this).width(width).height(height).appendTo(target);
+    });
+}
+
+</script>
+<script type="text/css">
+
+.divcol {
+  float: left;
+  width: 50%;
+  padding: 2px;
+}
+
+.divrow::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+
+</script>
+
+
+</head>	
+<body onload="mhistory_init();mhttpd_init('Target_Camera');init()">
+
+<div id="mheader"></div>
+    <div id="msidenav"></div>
+    <div id="mmain">
+
+  <div id="progrundiv" style="background-color:grey;"><p id="progruntext">Checking Status of Camera Program</p></div>
+
+  <table><tr ><td style="vertical-align:top">
+   <table style="width:100%;float:left;"><tr><td style="vertical-align:top">
+     <table style="float:left;width:3.5in;font-size:12px"><tr >	
+        <td style="vertical-align:top"><table class="dialogTable" style="width:100%"><tr style="font-size:12px;"><th colspan=2><ins>Select Camera Settings</ins></th><th><ins>Current Value</ins></th></tr>
+        <tr><td style="width:50%">Exposure<td><select Id="c1">
+           <option value="0.0625" > 1/16 s</option>
+           <option value="0.125" selected="selected"> 1/8 s </option>
+           <option value="0.25"> 1/4 s </option>
+           <option value="0.5"> 1/2 s </option>
+           <option value="1"> 1 s</option>
+           <option value="2"> 2 s</option>
+	</select></td></td>
+        <td id="cpa" style="width:35%" class="td"></td></tr>
+        <tr><td style="width:50%">Num. Images<td><select id="c2" type=text size=1 name=type>
+           <option value="1" selected="selected"> 1</option>
+           <option value="2"> 2</option>
+           <option value="3"> 3</option>
+           <option value="4"> 4</option>
+           <option value="5"> 5</option>
+           <option value="6"> 6</option>
+           <option value="7"> 7</option>
+           <option value="8"> 8</option>
+	</select></td></td>
+        <td id="cpb" class="td"></td></tr>
+        <tr><td>Cycle Time<td><select id="c3" type=text size=1 name=type>
+           <option value="500"> 500 s</option>
+           <option value="1000" selected="selected"> 1000 s</option>
+           <option value="1800"> 1800 s</option>
+           <option value="3600"> 3600 s</option>
+           <option value="7200"> 7200 s</option>
+        </select></td></td>
+        <td id="cpc" class="td"></td></tr>
+        <tr><td>LED Intensity<td><select id="c4" type=text size=1 name=type>
+           <option value="1"> 1</option>
+           <option value="2"> 2</option>
+           <option value="3"> 3</option>
+           <option value="4"> 4</option>
+           <option value="5"> 5</option>
+           <option value="6"> 6</option>
+           <option value="7"> 7</option>
+           <option value="8"> 8</option>
+           <option value="9"> 9</option>
+           <option value="10" selected="selected"> 10</option>
+        </select></td></td>
+        <td id="cpd" class="td"></td></tr>
+	<tr><td>Light<td><select id="c6" type=text size=1 name=type>
+	   <option value="0"> 0</option>
+	   <option value="1"> 1</option>
+	   <option value="2"> 2</option>
+	   <option value="3" selected="selected"> 3</option>
+	</select></td></td>
+	<td id="cpe" class="td"></td></tr>
+        </table>
+     </td></tr><tr><td>
+
+     <table class="dialogTable" style="width:100%;font-size: 13px"><tr style="font-size:15px"><th colspan=3><ins>Fit Parameters</ins></tr>
+	<tr><td>
+		&#916X
+		
+		<td Id="param0" class="td">
+		<td>
+		um
+		</td></td></td></tr>
+	<tr><td>
+		&#916Y
+		
+		<td id="param1" class="td">
+		
+		<td>
+		um
+		</td></td></td></tr>
+	<tr><td>
+		&#916Z
+		</td>
+		<td id="param2" class="td">
+		</td>
+		<td>
+		um
+		</td></tr>
+	<tr><td>
+		&#916&#920
+		</td>
+		<td id="param3" class="td">
+		</td><td>
+		mrad
+		</td></tr>
+	<tr><td>
+		&#916&#934
+		</td>
+		<td id="param4" class="td"></td>	
+		<td>
+		mrad
+		</td></tr>
+	<tr><td>
+		&#916&#936
+		</td>
+		<td id="param5" class="td"></td>	
+		<td>
+		mrad
+		</td></tr>
+	<tr><td>
+		Bowing
+		</td>
+		<td id="param6" class="td"></td>	
+		<td>
+		um
+		</td></tr>
+	<tr><td>
+                &#967<sup><sup><font size="1">2</font></sup></sup>
+                </td>
+                <td id="param7" class="td"></td>
+                <td>
+                
+                </td></tr>
+	
+     </table>
+     </td></tr>
+     
+     </table>
+   </td>
+   <td style="width:100%;vertical-align:top" >
+
+     <table class="dialogTable" style="float:right;" >
+        <tr><td colspan=3 >
+        <img id="LastImage" src="LatestTargetImage.jpg" style="width:4in"></td></tr>
+        <tr><td id="dbstrc" colspan=3> </td></tr>
+        <tr><td>
+	
+           <input id="rs" value="Start The Camera" type="button" onClick="runstop()">
+
+        </td><td>
+           <input id="rssingle" value="Take Single Image" type="button" onClick="single_isrun()">
+        </td>
+        <td>
+        
+           <input value="Refresh Images" type="button" onClick="window.location.reload()">
+           
+        
+        </td>
+        </tr>
+	<tr><td colspan=3>
+	<table>
+	   <tr><td><a href="https://rp.psi.ch/megon/elog/Online/3484">System Documentation</a></td><td></td><td><a href="reference_image.jpg">Reference Image</a></td></tr>
+	   <tr><td><a href="LatestTargetImage_highres.jpg">High Res Image</a></td><td></td><td><a href="LatestDarkfield.jpg">High Res Darkfield</a></td></tr>
+	</table>
+	</td></tr>
+
+     </table>
+   </td></tr>
+   <tr><td style="width:100%;float:right" >
+  
+     <table class="dialogTable" style="width:100%;font-size:8.5px;text-align:left">
+        <tr><td id="dbstt0"></td><td style="text-align:left;" id="dbstr0" > </td></tr>
+        <tr><td id="dbstt1"></td><td style="text-align:left" id="dbstr1"> </td></tr>
+        <tr><td id="dbstt2"></td><td style="text-align:left" id="dbstr2"> </td></tr>
+        <tr><td id="dbstt3"></td><td style="text-align:left" id="dbstr3"> </td></tr>
+	<tr><td id="dbstt4"></td><td style="text-align:left" id="dbstr4"> </td></tr>
+        <tr><td id="dbstt5"></td><td style="text-align:left" id="dbstr5"> </td></tr>
+        <tr><td id="dbstt6"></td><td style="text-align:left" id="dbstr6"> </td></tr>
+        <tr><td id="dbstt7"></td><td style="text-align:left" id="dbstr7"> </td></tr>
+	<tr><td id="dbstt8"></td><td style="text-align:left" id="dbstr8"> </td></tr>
+        <tr><td id="dbstt9"></td><td style="text-align:left" id="dbstr9"> </td></tr>
+        <tr><td id="dbstt10"></td><td style="text-align:left" id="dbstr10"> </td></tr>
+        <tr><td id="dbstt11"></td><td style="text-align:left" id="dbstr11"> </td></tr>
+	<tr><td id="dbstt12"></td><td style="text-align:left" id="dbstr12"> </td></tr>
+        <tr><td id="dbstt13"></td><td style="text-align:left" id="dbstr13"> </td></tr>
+        <tr><td id="dbstt14"></td><td style="text-align:left" id="dbstr14"> </td></tr>
+        <tr><td id="dbstt15"></td><td style="text-align:left" id="dbstr15"> </td></tr>
+	<tr><td id="dbstt16"></td><td style="text-align:left" id="dbstr16"> </td></tr>
+        <tr><td id="dbstt17"></td><td style="text-align:left" id="dbstr17"> </td></tr>
+        <tr><td id="dbstt18"></td><td style="text-align:left" id="dbstr18"> </td></tr>
+        <tr><td id="dbstt19"></td><td style="text-align:left" id="dbstr19"> </td></tr>
+	<tr><td id="dbstt20"></td><td style="text-align:left" id="dbstr20"> </td></tr>
+	<tr><td></td></tr>
+	<tr><td style="font-size:10px" colspan=2><a href="readout_total.txt">Full Readout History</a></td></tr>
+     </table>
+  </td><td style="vertical-align:top">
+  <table class="dialogTable" style="vertical-align:top" >
+     <tr>
+     <td ><div class="mjshistory" data-group="Target_Camera" data-panel="Monitor Params" style="width:3.5in;height:2in"></div>
+     </td></tr>
+     </table>
+  </td></tr>
+  </table>
+  
+  </td><td style="vertical-align:top">
+  <table><tr><td style="vertical-align:top">
+     <table class="dialogTable" style="float:right" >
+     <tr>
+     <td ><div class="mjshistory" data-group="Target_Camera" data-panel="Fit Translations" style="width:3.5in;height:2in"></div></td>
+     <td>
+     <img id="arrow1" src="arrow_plot1.png" style="width:3.5in;height:2in"></td></tr>
+     <tr><td><div class="mjshistory" data-group="Target_Camera" data-panel="Fit Rotations" style="width:3.5in;height:2in"></div></td>
+     <td><img id="arrow2" src="arrow_plot2.png" style="width:3.5in;height:2in"></td></tr>
+     <tr><td ><div class="mjshistory" data-group="Target_Camera" data-panel="Fit Bowing" style="width:3.5in;height:2in"></div>
+        </td>
+     <td>
+     <table><tr><td><img id="hist1" src="histx.png" style="width:1.7in;height:2in"></td>
+     <td><img id="hist2" src="histy.png" style="width:1.7in;height:2in"></td></tr>
+     </table></td></tr>
+     <tr><td><div class="mjshistory" data-group="Target_Camera" data-panel="ChiSq" style="width:3.5in;height:2in"></div>
+     </td>
+     <td><div class="mjshistory" data-group="Target_Camera" data-panel="Hot Pixel Values" style="width:3.5in;height:2in"></div>
+     </td></tr>
+     </table>
+  </td></tr></table>
+  </td></tr>
+  </table>
+
+
+
+
+
+<div style="clear: both;height:.2cm;"></div>
+
+<table style="text-size:0px; display:none"><tr><td id="needup">0</td><td id="lastcount">0</td><td id="lastcounttime">0</td></tr></table>
+</div>
+</body>
+</html>
