@@ -1,0 +1,14 @@
+ssh pi@UCItgtRPI
+
+ssh ucicam@ucicam
+
+/home/meg/online/slowcontrol/tgtcam
+
+./camsysold
+
+export LD_LIBRARY_PATH=$LD_LIBRARYPATH:/home/meg/online/slowcontrol/tgtcam/libssh/lib64 
+
+gcc -c -fpic -std=c99 -I/home/meg/online/slowcontrol/tgtcam/libssh/include camsysold.c
+
+gcc -o camsysold -L/home/meg/online/slowcontrol/tgtcam/libssh/lib64 -lssh camsysold.o
+
